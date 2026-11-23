@@ -15,8 +15,16 @@ DST = os.path.join(DST_DIR, "entry.png")
 
 
 def main():
+    if not os.path.isfile(SRC):
+        raise FileNotFoundError(
+            f"missing source image: {SRC} — entry.png must sit next to main.py"
+        )
     os.makedirs(DST_DIR, exist_ok=True)
-    shutil.copyfile(SRC, DST)
+    # Copy via a temp file + atomic replace so /output/entry.png is never
+    # left half-written, and the bytes stay identical every run.
+    tmp = DST + ".tmp"
+    shutil.copyfile(SRC, tmp)
+    os.replace(tmp, DST)
     return 0
 
 
